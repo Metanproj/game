@@ -1,19 +1,22 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import bcrypt from 'bcrypt';
+// @ts-ignore
 import clientPromise from '../../../lib/mongodb';
+
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method !== 'POST') {
       return res.status(405).json({ message: 'Method Not Allowed' });
     }
-
+    
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
-
+    
     // Connect to the database
+    // @ts-ignore
     const client = await clientPromise;
     const db = client.db();
 
@@ -34,11 +37,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       createdAt: new Date(),
     });
 
-    res.status(201).json({ message: 'User created successfully' });
-  } catch (error) {
+    // Redirect the user to the dashboard
+    res.status(201).json({ message: 'User created successfully', redirectTo: '/game' });
+    } catch (error) {
     console.error('Signup error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
+    }
   }
-}
 
 export default handler;
